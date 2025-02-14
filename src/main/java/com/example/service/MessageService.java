@@ -72,19 +72,20 @@ public class MessageService {
 
     /**
      * Updates a message's text by its id.
-     * @param messageText the text of a transient message entity.
+     * @param message a transient message entity.
      * @param messageId the id of a transient message entity.
      * @return true if the update was succesful and false otherwise.
      */
-    public Boolean updateMessageById(String messageText, Integer messageId){
+    public Integer updateMessageById(Message message, Integer messageId){
         if (messageRepository.findById(messageId).isEmpty()) {
             throw new IllegalStateException("Account does not exist");
-        } else if (messageText.strip().length() == 0 || messageText.length() > 255) {
+        } else if (message.getMessageText().strip().length() == 0 || message.getMessageText().length() > 255) {
             throw new IllegalArgumentException("Message length invalid");
         } else {
-            messageRepository.updateMessageTextByMessageId(messageText, messageId);
+            Message oldMessage = messageRepository.findById(messageId).get();
+            oldMessage.setMessageText(message.getMessageText());
             messageRepository.save(messageRepository.findById(messageId).get());
-            return true;
+            return 1;
         }
     }
 

@@ -1,17 +1,19 @@
 package com.example.controller;
 
-import java.util.Optional;
-import com.example.service.AccountService;
-import com.example.service.MessageService;
-import com.example.entity.Account;
-import com.example.entity.Message;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.example.entity.Account;
+import com.example.entity.Message;
+import com.example.service.AccountService;
+import com.example.service.MessageService;
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your controller using Spring. The endpoints you will need can be
@@ -30,7 +32,9 @@ public class SocialMediaController {
     }
 
     /**
-     * [...]
+     * Creates a new Account on the endpoint POST localhost:8080/register.
+     * @param account a transient account entity.
+     * @return a response status and response body.
      */
     @PostMapping("/register")
     public ResponseEntity postUserRegistrationHandler(@RequestBody Account account) {
@@ -45,7 +49,9 @@ public class SocialMediaController {
     }
 
     /**
-     * [...]
+     * Verifies a user's login on the endpoint POST localhost:8080/login.
+     * @param account a transient account entity.
+     * @return a response status and response body.
      */
     @PostMapping("/login")
     public ResponseEntity postUserLoginHandler(@RequestBody Account account) {
@@ -58,7 +64,9 @@ public class SocialMediaController {
     }
 
     /**
-     * [...]
+     * Submits a new post on the endpoint POST localhost:8080/messages.
+     * @param message a transient message entity.
+     * @return a response status and response body.
      */
     @PostMapping("/messages")
     public ResponseEntity postMessageCreationHandler(@RequestBody Message message) {
@@ -74,7 +82,8 @@ public class SocialMediaController {
     }
 
     /**
-     * [...]
+     * Submits a GET request on the endpoint GET localhost:8080/messages.
+     * @return a response status and response body.
      */
     @GetMapping("/messages")
     public ResponseEntity getAllMessagesHandler() {
@@ -82,7 +91,9 @@ public class SocialMediaController {
     }
 
     /**
-     * [...]
+     * Submits a GET request on the endpoint GET localhost:8080/messages/{messageId}.
+     * @param messsageId the id of a transient message entity.
+     * @return a response status and response body.
      */
     @GetMapping("/messages/{messageId}")
     public ResponseEntity getMessageByIdHandler(@PathVariable Integer messageId) {
@@ -95,7 +106,9 @@ public class SocialMediaController {
     }
 
     /**
-     * [...]
+     * Submits a DELETE request on the endpoint DELETE localhost:8080/messages/{messageId}.
+     * @param messageId the id of a transient message entity.
+     * @return a response status and response body.
      */
     @DeleteMapping("/messages/{messageId}")
     public ResponseEntity deleteMessageByIdHandler(@PathVariable Integer messageId) {
@@ -107,13 +120,16 @@ public class SocialMediaController {
     }
 
     /**
-     * [...]
+     * Submits a PATCH request on the endpoint PATCH localhost:8080/messages/{messageId}.
+     * @param message a transient message entity.
+     * @param messageId the id of a transient message entity.
+     * @return a response status and response body.
      */
     @PatchMapping("/messages/{messageId}")
-    public ResponseEntity updateMessageByIdHandler(@RequestParam String messageText, @PathVariable Integer messageId) {
+    public ResponseEntity updateMessageByIdHandler(@RequestBody Message message, @PathVariable Integer messageId) {
         try {
-            messageService.updateMessageById(messageText, messageId);
-            return ResponseEntity.status(200).body(1);
+            Integer updated = messageService.updateMessageById(message, messageId);
+            return ResponseEntity.status(200).body(updated);
         } catch (IllegalStateException ex) {
             return ResponseEntity.status(400).body(ex.getMessage());
         } catch (IllegalArgumentException ex) {
@@ -122,7 +138,9 @@ public class SocialMediaController {
     }
 
     /**
-     * [...]
+     * Submits a GET request on the endpoint GET localhost:8080/accounts/{accountId}/messages.
+     * @param accountId the id of a transient account entity.
+     * @return a response status and response body.
      */
     @GetMapping("/accounts/{accountId}/messages")
     public ResponseEntity getMessagesByAccountIdHandler(@PathVariable Integer accountId) {

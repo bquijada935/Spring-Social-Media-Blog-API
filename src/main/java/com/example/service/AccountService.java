@@ -22,13 +22,11 @@ public class AccountService {
      * @return a persisted account entity.
      */
     public Account registerUser(Account account){
-        if (account.getUsername().strip().length() == 0) {
-            return null;
-        } else if (account.getPassword().length() < 4) {
-            return null;
-        } else if (accountRepository.findAccountByUsername(account.getUsername()) != null) {
-            return account;
-        } else {
+        if (!accountRepository.findAccountByUsername(account.getUsername()).isEmpty()) {
+            throw new IllegalStateException("Username already exists");
+        } else if (account.getUsername().strip().length() == 0 || account.getPassword().length() < 4) {
+            throw new IllegalArgumentException("Username and/or Password are invalid");
+        } else { 
             return accountRepository.save(account);
         }
     }
@@ -39,7 +37,11 @@ public class AccountService {
      * @return a persisted account entity.
      */
     public Account userLogin(Account account){
-        return accountRepository.findAccountByUsernameAndPassword(account.getUsername(), account.getPassword()).get();
+        if (accountRepository.findAccountByUsernameAndPassword(account.getUsername(), account.getPassword()).isEmpty()) {
+            throw new IllegalArgumentException("Username and/or Password do not match an existing Account");
+        } else { 
+            return accountRepository.findAccountByUsernameAndPassword(account.getUsername(), account.getPassword()).get();
+        }
     }
-    
+
 }

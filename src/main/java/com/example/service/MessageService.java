@@ -26,10 +26,10 @@ public class MessageService {
      * @return a persisted message entity.
      */
     public Message createMessage(Message message){
-        if (message.getMessageText().strip().length() == 0 || message.getMessageText().length() > 255) {
-            return null;
-        } else if (accountRepository.findById(message.getPostedBy()).get() == null) {
-            return null;
+        if (accountRepository.findById(message.getPostedBy()).isEmpty()) {
+            throw new IllegalStateException("Account does not exist");
+        } else if (message.getMessageText().strip().length() == 0 || message.getMessageText().length() > 255) {
+            throw new IllegalArgumentException("Message length invalid");
         } else {
             return messageRepository.save(message);
         }
@@ -49,7 +49,11 @@ public class MessageService {
      * @return a message entity.
      */
     public Message retrieveMessageById(Integer messageId){
-        return messageRepository.findById(messageId).get();
+        if (messageRepository.findById(messageId).isEmpty()) {
+            throw new IllegalStateException("Message does not Exist");
+        } else {
+            return messageRepository.findById(messageId).get();
+        }
     }
 
     /**
@@ -58,7 +62,7 @@ public class MessageService {
      * @return true if message was succesfully deleted and false otherwise.
      */
     public Boolean deleteMessageById(Integer messageId){
-        if (messageRepository.findById(messageId) == null) {
+        if (messageRepository.findById(messageId).isEmpty()) {
             return false;
         } else {
             messageRepository.deleteById(messageId);
@@ -73,12 +77,13 @@ public class MessageService {
      * @return true if the update was succesful and false otherwise.
      */
     public Boolean updateMessageById(String messageText, Integer messageId){
-        if (messageRepository.findById(messageId) == null) {
-            return false;
+        if (messageRepository.findById(messageId).isEmpty()) {
+            throw new IllegalStateException("Account does not exist");
         } else if (messageText.strip().length() == 0 || messageText.length() > 255) {
-            return false;
+            throw new IllegalArgumentException("Message length invalid");
         } else {
             messageRepository.updateMessageTextByMessageId(messageText, messageId);
+            messageRepository.save(messageRepository.findById(messageId).get());
             return true;
         }
     }

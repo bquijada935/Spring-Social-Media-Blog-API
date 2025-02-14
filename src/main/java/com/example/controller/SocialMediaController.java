@@ -34,13 +34,13 @@ public class SocialMediaController {
      */
     @PostMapping("/register")
     public ResponseEntity postUserRegistrationHandler(@RequestBody Account account) {
-        Account registeredAccount = accountService.registerUser(account);
-        if (registeredAccount == null) {
-            return ResponseEntity.status(400).body("Client error");
-        } else if (registeredAccount != account) {
-            return ResponseEntity.status(409).body("Conflict");
-        } else {
+        try {
+            Account registeredAccount = accountService.registerUser(account);
             return ResponseEntity.status(200).body(registeredAccount);
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.status(409).body(ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(400).body(ex.getMessage());
         }
     }
 
@@ -49,11 +49,11 @@ public class SocialMediaController {
      */
     @PostMapping("/login")
     public ResponseEntity postUserLoginHandler(@RequestBody Account account) {
-        Account registeredAccount = accountService.userLogin(account);
-        if (registeredAccount == null) {
-            return ResponseEntity.status(401).body("Unsuccessful Login");
-        } else {
+        try {
+            Account registeredAccount = accountService.userLogin(account);
             return ResponseEntity.status(200).body(registeredAccount);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(401).body(ex.getMessage());
         }
     }
 
@@ -62,11 +62,14 @@ public class SocialMediaController {
      */
     @PostMapping("/messages")
     public ResponseEntity postMessageCreationHandler(@RequestBody Message message) {
-        Message createdMessage = messageService.createMessage(message);
-        if (createdMessage == null) {
-            return ResponseEntity.status(400).body("Client Error");
-        } else {
+        try {
+            Message createdMessage = messageService.createMessage(message);
             return ResponseEntity.status(200).body(createdMessage);
+
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(400).build();
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.status(400).build();
         }
     }
 
@@ -83,7 +86,12 @@ public class SocialMediaController {
      */
     @GetMapping("/messages/{messageId}")
     public ResponseEntity getMessageByIdHandler(@PathVariable Integer messageId) {
-        return ResponseEntity.status(200).body(messageService.retrieveMessageById(messageId));
+        try {
+            Message message = messageService.retrieveMessageById(messageId);
+            return ResponseEntity.status(200).body(message);
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.status(200).build();
+        }
     }
 
     /**
@@ -94,7 +102,7 @@ public class SocialMediaController {
         if (messageService.deleteMessageById(messageId)) {
             return ResponseEntity.status(200).body(1);
         } else {
-            return ResponseEntity.status(200).body(0);
+            return ResponseEntity.status(200).build();
         }
     }
 
@@ -103,10 +111,13 @@ public class SocialMediaController {
      */
     @PatchMapping("/messages/{messageId}")
     public ResponseEntity updateMessageByIdHandler(@RequestParam String messageText, @PathVariable Integer messageId) {
-        if (messageService.updateMessageById(messageText, messageId)) {
+        try {
+            messageService.updateMessageById(messageText, messageId);
             return ResponseEntity.status(200).body(1);
-        } else {
-            return ResponseEntity.status(400).body(0);
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.status(400).body(ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(400).body(ex.getMessage());
         }
     }
 
